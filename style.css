@@ -1,0 +1,136 @@
+#creatures_div {
+	width: 79%;
+	height: 26%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	border: 1px solid black;
+}
+
+#enchantments_div {
+	width: 79%;
+	height: 26%;
+	position: absolute;
+	left: 0;
+	top: 26%;
+	border: 1px solid black;
+}
+
+#lands_div {
+	width: 79%;
+	height: 26%;
+	position: absolute;
+	left: 0;
+	top: 52%;
+	border: 1px solid black;
+}
+
+#hand_div {
+	width: 60%;
+	height: 20%;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+#info_div {
+	width: 20%;
+	height: 79%;
+	position: absolute;
+	right: 0;
+	top: 0;
+	border: 1px solid black;
+}
+
+img {
+	height: 100px;
+	width: 72px;
+}
+
+.tapped {
+	transform: rotate(90deg);
+}
+
+.drop-zone {
+    background-color: #eee;
+  }
+
+.drag-el {
+	background-color: #fff;
+}
+
+.stack_div {
+	width: 100px;
+	float: left;
+}
+
+input {
+	width: 90px;
+}
+
+.zone_div {
+	overflow-y: scroll;
+}
+
+.bordered {
+	border: 1px solid black;
+}
+
+#library_div {
+	width: 10%;
+	height: 20%;
+	position: absolute;
+	left: 60%;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+#graveyard_div {
+	width: 6%;
+	height: 20%;
+	position: absolute;
+	left: 70%;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+#exile_div {
+	width: 6%;
+	height: 20%;
+	position: absolute;
+	left: 76%;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+#sideboard_div {
+	width: 6%;
+	height: 20%;
+	position: absolute;
+	left: 82%;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+#command_div {
+	width: 6%;
+	height: 20%;
+	position: absolute;
+	left: 88%;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+#trash_div {
+	width: 6%;
+	height: 20%;
+	position: absolute;
+	right: 0%;
+	bottom: 0;
+	border: 1px solid black;
+}
+
+.hidden {
+	visibility:none;
+}

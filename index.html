@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+
+	<div id="app">
+		{{ message }}
+		<div 	id="creatures_div"
+				class='drop-zone zone_div'
+				@drop='onDrop($event,  player_i, "creatures", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				<stack
+					v-for="stack in creatures"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+					v-bind:player_i="player_i"
+				></stack>
+		</div>
+		<div 	id="enchantments_div"
+				class='drop-zone zone_div'
+				@drop='onDrop($event,  player_i, "enchantments", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				<stack
+					v-for="stack in enchantments"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+		</div>
+		<div 	id="lands_div"
+				class='drop-zone zone_div'
+				@drop='onDrop($event,  player_i, "lands", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				<stack
+					v-for="stack in lands"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+		</div>
+		<div 	id="hand_div"
+				class='drop-zone zone_div'
+				@drop='onDrop($event,  player_i, "hand", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				<stack
+					v-for="stack in hand"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+		</div>
+		<div id="library_div">
+			<div class="drop-zone bordered"
+				@drop='onDrop($event,  player_i, "top", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				top
+			</div>
+			<div class="drop-zone bordered"
+				@drop='onDrop($event,  player_i, "bottom", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				bottom
+			</div>
+			Library
+			Count:{{ library.length }}
+			<button v-on:click="drawCard()">Draw Card</button>
+			<button v-on:click="viewLibrary()">View Library</button>
+			<button v-on:click="shuffleLibrary()">Shuffle Library</button>
+		</div>
+		<div class='drop-zone'
+			id="graveyard_div"
+			@drop='onDrop($event,  player_i, "graveyard", null, "zone")'
+			@dragover.prevent
+			@dragenter.prevent>
+			Graveyard
+			Count:{{ graveyard.length }}
+			<button v-on:click="viewGraveyard()">View Graveyard</button>
+		</div>
+		<div class='drop-zone'
+			id="exile_div"
+			@drop='onDrop($event,  player_i, "exile", null, "zone")'
+			@dragover.prevent
+			@dragenter.prevent>
+			Exile
+			Count:{{ exile.length }}
+			<button v-on:click="viewExile()">View Exile</button>
+		</div>
+		<div class='drop-zone'
+			id="sideboard_div"
+			@drop='onDrop($event,  player_i, "sideboard", null, "zone")'
+			@dragover.prevent
+			@dragenter.prevent>
+			Sideboard
+			Count:{{ sideboard.length }}
+			<button v-on:click="viewSideboard()">View Sideboard</button>
+		</div>
+		<div class='drop-zone'
+			id="command_div"
+			@drop='onDrop($event,  player_i, "command", null, "zone")'
+			@dragover.prevent
+			@dragenter.prevent>
+			Command
+			Count:{{ sideboard.length }}
+			<button v-on:click="viewSideboard()">View Command</button>
+		</div>
+		<div class='drop-zone'
+			id="trash_div"
+			@drop='onDrop($event,  player_i, "trash", null, "zone")'
+			@dragover.prevent
+			@dragenter.prevent>
+			Trash
+		</div>
+		<div id="info_div">
+			<img class="zoom_img" v-bind:src="zoom_link"/>
+			Player: 
+			<button v-on:click="previousPlayer()">Previous Player</button>
+			{{ player_i + 1}}
+			<button v-on:click="nextPlayer()">Next Player</button>
+			<br>
+			<button v-on:click="decreaseHealth()">-</button>
+			Health: {{ players[player_i].health }}
+			<button v-on:click="increaseHealth()">+</button>
+			<br>
+			<button v-on:click="decreasePoison()">-</button>
+			Poison: {{ players[player_i].poison }}
+			<button v-on:click="increasePoison()">+</button>
+			<br>
+			<button v-on:click="decreaseComDam1()">-</button>
+			Commander Damage 1: {{ players[player_i].ComDam1 }}
+			<button v-on:click="increaseComDam1()">+</button>
+			<br>
+			<button v-on:click="decreaseComDam2()">-</button>
+			Commander Damage 2: {{ players[player_i].ComDam2 }}
+			<button v-on:click="increaseComDam2()">+</button>
+			<br>
+			<button v-on:click="decreaseComDam3()">-</button>
+			Commander Damage 3: {{ players[player_i].ComDam3 }}
+			<button v-on:click="increaseComDam3()">+</button>
+			<br>
+			<button v-on:click="decreaseComTax()">-</button>
+			Commander Tax: {{ players[player_i].ComTax }}
+			<button v-on:click="increaseComTax()">+</button>
+		</div>
+		<div id="popup_div" v-bind:class='{ hidden: popup == "hidden"}'>
+			<button v-on:click="closePopup()">Close</button>
+			<div v-if='popup == "init"'>
+				Deck:
+				<input v-model="players[0].starting_library"/>
+				Sideboard:
+				<input v-model="players[0].starting_library"/>
+				Command zone:
+				<input v-model="players[0].starting_library"/>
+				<button v-on:click="initSim()">Start</button>
+			</div>
+			<div v-if='popup == "library"'>
+				Library
+				<stack
+					v-for="stack in library"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+			</div>
+			<div v-if='popup == "graveyard"'>
+				Graveyard
+				<stack
+					v-for="stack in graveyard"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+			</div>
+			<div v-if='popup == "exile"'>
+				<stack
+					v-for="stack in exile"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+			</div>
+			<div v-if='popup == "sideboard"'>
+				Sideboard
+				<stack
+					v-for="stack in sideboard"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+			</div>
+			<div v-if='popup == "command"'>
+				Command Zone
+				<stack
+					v-for="stack in command"
+					v-bind:stack="stack"
+					v-bind:key="stack.id"
+				></stack>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+<script src="main.js"></script>
+
+</html>
