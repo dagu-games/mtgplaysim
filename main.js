@@ -1,13 +1,6 @@
-var scry_cache = [];
 var id_cache = [];
 
-var scryfall = function(cardname){
-	
-};
 
-var reorderStacks = function(){
-	
-}
 
 var generateID = function(){
 	var id = "";
@@ -29,7 +22,7 @@ var generateID = function(){
 }
 
 Vue.component('stack', {
-	props: ['stack'],
+	props: ['stack','scry_cache'],
 	template: `
 			<div class="stack_div" style="border: black 1px solid;">
 				<div class="drag-el stack_drag_area"
@@ -41,8 +34,8 @@ Vue.component('stack', {
 				<div v-for="card in stack.cards">
 					<img
 						v-bind:class='{ tapped: stack.isTapped, "drag-el": true }'
-						v-bind:src="card.links[card.link_i]"
-						@mouseover='onCardHover($event, card.links[card.link_i])'
+						v-bind:src="scry_cache[card.name][card.link_i]"
+						@mouseover='onCardHover($event, scry_cache[card.name][card.link_i])'
 						draggable
 						@dragstart='startDrag($event, card, "card")'
 						/>
@@ -80,11 +73,16 @@ Vue.component('stack', {
 			
 });
 
-
 var app = new Vue({
   el: '#app',
   data: {
     message: 'Welcome to MTGSim',
+	scry_cache: {
+		"Forest":[
+			'https://c1.scryfall.com/file/scryfall-cards/large/front/1/c/1c59fc48-704b-4187-b9d3-2a2cff6dd54b.jpg?1562202644',
+			'https://i.redd.it/qnnotlcehu731.jpg',
+		],
+	},
 	players: [
 		{
 			health: 40,
@@ -93,9 +91,17 @@ var app = new Vue({
 			ComDam2: 0,
 			ComDam3: 0,
 			ComTax: 0,
-			starting_library: [],
-			starting_sideboard: [],
-			starting_command: [],
+			starting_library:`4 Giant's Growth
+4 Paradise Druid
+4 The Great Henge
+4 Biogenic Ooze
+4 Voracious Hydra
+4 Barkhide Troll
+4 Nyxbloom Ancient
+4 Hydra's Growth
+24 Forest`,
+			starting_sideboard: "",
+			starting_command: "",
 			
 		},
 		{
@@ -119,25 +125,6 @@ var app = new Vue({
 	popup: "init",
 	zoom_link: "",
 	stacks: [
-		{
-			notes: "test",
-			id: 0,
-			isTapped: false,
-			zone: "creatures",
-			player: 0,
-			cards: [
-				{
-					name: "Forest",
-					id: 1,
-					link_i: 0,
-					links:[
-						'https://c1.scryfall.com/file/scryfall-cards/large/front/1/c/1c59fc48-704b-4187-b9d3-2a2cff6dd54b.jpg?1562202644',
-						'https://i.redd.it/qnnotlcehu731.jpg',
-					],
-				},
-			],
-			
-		},
 		{
 			notes: "test2",
 			id: 2,
@@ -213,6 +200,48 @@ var app = new Vue({
 			}
 		}
 	},
+	resetAll: function(){
+		this.scryfall("Forest");
+	},
+	initSim: function(){
+		
+		//go through all inputs, init the scryfall links for each card name and attach the links by creating card instances and dumping them into the stacks with appropriate zone/player/id info
+		var stringToDeck = function(str, app){
+			var arr = str.split("\n");
+			for(var i = 0 ; i < arr.length; i ++){
+				var arr_t = arr[i].split(" ");
+				arr[i] = [arr_t[0]];
+				var str_t = arr_t[1];
+				for(var j = 2; j < arr_t.length; j++){
+					str_t += " " + arr_t[j];
+				}
+				arr[i].push(str_t);
+			}
+			
+			var arr2 = [];
+			for(var i = 0; i < arr.length; i++){
+				for(var j = 0; j < arr[i][0]; j++){
+					app.scryfall(arr[i][1]);
+					arr2.push({
+						notes: "",
+						id: generateID(),
+						isTapped: false,
+						zone: "library",
+						player: 0,
+						cards:[{
+							name: arr[i][1],
+							id: generateID(),
+							link_i: 0,
+						}],
+					});
+				}
+			}
+			
+			return arr2;
+		}
+		this.stacks = stringToDeck(this.players[0].starting_library, this);
+		
+	},
 	tapStack: function(id){
 		for(var i = 0; i < this.stacks.length; i++){
 			if(this.stacks[i].id == id){
@@ -243,7 +272,7 @@ var app = new Vue({
 		for(var i = 0; i < this.stacks.length; i++){
 			for(var j = 0; j < this.stacks[i].cards.length; j++){
 				if(this.stacks[i].cards[j].id == id){
-					if(this.stacks[i].cards[j].links.length <= this.stacks[i].cards[j].link_i + 1){
+					if(this.scry_cache[this.stacks[i].cards[j].name].length <= this.stacks[i].cards[j].link_i + 1){
 						this.stacks[i].cards[j].link_i = 0;
 					}else{
 						this.stacks[i].cards[j].link_i += 1;
@@ -259,11 +288,6 @@ var app = new Vue({
 	},
 	rollDie: function(){
 		this.coin = Math.floor(Math.random() * 2) == 0 ? "Heads" : "Tails";
-	},
-	resetAll: function(){
-		//clear all zones
-		//dump starting decks into the library, sideboard, command, etc
-		//reset all health, damage, poison, variables
 	},
 	increaseScale: function(){},
 	decreaseScale: function(){},
@@ -306,8 +330,40 @@ var app = new Vue({
 	viewLibrary: function(){
 		this.popup = "library";
 	},
-	shuffleLibrary: function(){},
-	drawCard: function(){},
+	shuffleLibrary: function(){
+		
+		console.log(this.stacks);
+		var lib = [];
+		for(var i = 0; i < this.stacks.length; i++){
+			if(this.stacks[i].zone == "library"){
+				lib.push(this.stacks.splice(i,1)[0]);
+				i--;
+			}
+		}
+		for(var i = (lib.length - 1); i > 0; i--){
+			/*var j = Math.floor(Math.random() * i);
+			var temp = lib[i];
+			lib[i] = lib[j];
+			lib[j] = temp;*/
+		}
+		i = lib.length;
+		while (i--) {
+			const ri = Math.floor(Math.random() * (i + 1));
+			[lib[i], lib[ri]] = [lib[ri], lib[i]];
+		}
+		for(var i = 0; i < lib.length; i++){
+			this.stacks.push(lib[i]);
+		}
+		console.log(this.stacks);
+	},
+	drawCard: function(){
+		for(var i = 0; i < this.stacks.length; i++){
+			if(this.stacks[i].zone == "library"){
+				this.stacks[i].zone = "hand";
+				break;
+			}
+		}
+	},
 	viewGraveyard: function(){
 		this.popup = "graveyard";
 	},
@@ -444,6 +500,38 @@ var app = new Vue({
 		
 	  }
 	  console.log(this);
+	},
+	scryfall: function(cardname){
+		if(cardname != "Forest" && this.scry_cache[cardname] != undefined){
+			return;
+		}
+		function httpGetAsync(theUrl, callback, cardname, app){
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.onreadystatechange = function() { 
+				if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+					callback(xmlHttp.responseText, cardname, app);
+			}
+			xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+			xmlHttp.send(null);
+			app.scry_cache[cardname] = [""];
+		}
+		
+		function callback(responseText, cardname, app){
+			var json_obj = JSON.parse(responseText);
+			if(json_obj.card_faces == null){
+				app.scry_cache[cardname] = [json_obj.image_uris.png];
+			}else{
+				var arr = [];
+				for(var i = 0; i < json_obj.card_faces.length; i++){
+					arr.push(json_obj.card_faces[i].image_uris.png);
+				}
+				app.scry_cache[cardname] = arr;
+			}
+			
+		}
+
+
+		httpGetAsync("https://api.scryfall.com/cards/named?fuzzy=" + encodeURI(cardname), callback, cardname, this);
 	},
   },
 	computed: {

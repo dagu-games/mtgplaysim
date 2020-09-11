@@ -16,6 +16,7 @@
 				<stack
 					v-for="stack in creatures"
 					v-bind:stack="stack"
+					v-bind:scry_cache="scry_cache"
 					v-bind:key="stack.id"
 					v-bind:player_i="player_i"
 				></stack>
@@ -28,6 +29,7 @@
 				<stack
 					v-for="stack in enchantments"
 					v-bind:stack="stack"
+					v-bind:scry_cache="scry_cache"
 					v-bind:key="stack.id"
 				></stack>
 		</div>
@@ -40,6 +42,7 @@
 					v-for="stack in lands"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 		</div>
 		<div 	id="hand_div"
@@ -51,6 +54,7 @@
 					v-for="stack in hand"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 		</div>
 		<div id="library_div">
@@ -145,16 +149,18 @@
 			<button v-on:click="decreaseComTax()">-</button>
 			Commander Tax: {{ players[player_i].ComTax }}
 			<button v-on:click="increaseComTax()">+</button>
+			<button v-on:click="resetAll()">Reset All</button>
 		</div>
 		<div id="popup_div" v-bind:class='{ hidden: popup == "hidden"}'>
 			<button v-on:click="closePopup()">Close</button>
 			<div v-if='popup == "init"'>
 				Deck:
-				<input v-model="players[0].starting_library"/>
+				<textarea style="width:200px;height:200px;" v-model="players[0].starting_library"></textarea>
+				<br>
 				Sideboard:
-				<input v-model="players[0].starting_library"/>
+				<input v-model="players[0].starting_sideboard"/>
 				Command zone:
-				<input v-model="players[0].starting_library"/>
+				<input v-model="players[0].starting_command"/>
 				<button v-on:click="initSim()">Start</button>
 			</div>
 			<div v-if='popup == "library"'>
@@ -163,6 +169,7 @@
 					v-for="stack in library"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 			</div>
 			<div v-if='popup == "graveyard"'>
@@ -171,6 +178,7 @@
 					v-for="stack in graveyard"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 			</div>
 			<div v-if='popup == "exile"'>
@@ -178,6 +186,7 @@
 					v-for="stack in exile"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 			</div>
 			<div v-if='popup == "sideboard"'>
@@ -186,6 +195,7 @@
 					v-for="stack in sideboard"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 			</div>
 			<div v-if='popup == "command"'>
@@ -194,6 +204,7 @@
 					v-for="stack in command"
 					v-bind:stack="stack"
 					v-bind:key="stack.id"
+					v-bind:scry_cache="scry_cache"
 				></stack>
 			</div>
 		</div>

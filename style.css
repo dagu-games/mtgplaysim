@@ -77,6 +77,16 @@ input {
 	border: 1px solid black;
 }
 
+#popup_div {
+	width: 90%;
+	height: 90%;
+	position: absolute;
+	left: 5%;
+	top: 5%;
+	border: 1px solid black;
+	background-color: #fff;
+}
+
 #library_div {
 	width: 10%;
 	height: 20%;
@@ -132,5 +142,5 @@ input {
 }
 
 .hidden {
-	visibility:none;
+	display:none;
 }
