@@ -22,7 +22,7 @@ var generateID = function(){
 }
 
 Vue.component('stack', {
-	props: ['stack','scry_cache'],
+	props: ['stack'],
 	template: `
 			<div class="stack_div" style="border: black 1px solid;">
 				<div class="drag-el stack_drag_area"
@@ -34,8 +34,8 @@ Vue.component('stack', {
 				<div v-for="card in stack.cards">
 					<img
 						v-bind:class='{ tapped: stack.isTapped, "drag-el": true }'
-						v-bind:src="scry_cache[card.name][card.link_i]"
-						@mouseover='onCardHover($event, scry_cache[card.name][card.link_i])'
+						v-bind:src='getLink(card.name,card.link_i)'
+						@mouseover='onCardHover($event, getLink(card.name,card.link_i))'
 						draggable
 						@dragstart='startDrag($event, card, "card")'
 						/>
@@ -55,22 +55,219 @@ Vue.component('stack', {
 			`,
 	methods: {
 		flipCard: function(id){
-			this.$parent.flipCard(id);
+			if(this.$parent.$parent == undefined){
+				this.$parent.flipCard(id);
+			}else{
+				this.$parent.$parent.flipCard(id);
+			}
 		},
 		tapStack: function(id){
-			this.$parent.tapStack(id);
+			if(this.$parent.$parent == undefined){
+				this.$parent.tapStack(id);
+			}else{
+				this.$parent.$parent.tapStack(id);
+			}
 		},
 		startDrag: function(evt, item, type){
-			this.$parent.startDrag(evt, item, type);
+			if(this.$parent.$parent == undefined){
+				this.$parent.startDrag(evt, item, type);
+			}else{
+				this.$parent.$parent.startDrag(evt, item, type);
+			}
 		},
+		onDrop: function(evt, player, zone, stackID, dropType){
+			if(this.$parent.$parent == undefined){
+				this.$parent.onDrop(evt, player, zone, stackID, dropType);
+			}else{
+				this.$parent.$parent.onDrop(evt, player, zone, stackID, dropType);
+			}
+		},
+		onCardHover: function(evt, link_str){
+			if(this.$parent.$parent == undefined){
+				this.$parent.onCardHover(evt, link_str);
+			}else{
+				this.$parent.$parent.onCardHover(evt, link_str);
+			}
+		},
+		getLink: function(cardname, i){
+			if(this.$parent.$parent == undefined){
+				return this.$parent.scry_cache[cardname][i];
+			}else{
+				return this.$parent.$parent.scry_cache[cardname][i];
+			}
+		},
+	},	
+			
+});
+
+
+Vue.component('playerpanel', {
+	props: ['players','scry_cache','stacks','player_i'],
+	template: `
+		<div class="playerpanel_div">
+			<div 
+					class='drop-zone zone_div creatures_div'
+					@drop='onDrop($event,  player_i, "creatures", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<stack
+						v-for="stack in creatures"
+						v-bind:stack="stack"
+						v-bind:scry_cache="scry_cache"
+						v-bind:key="stack.id"
+						v-bind:player_i="player_i"
+					></stack>
+			</div>
+			<div
+					class='drop-zone zone_div enchantments_div'
+					@drop='onDrop($event,  player_i, "enchantments", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<stack
+						v-for="stack in enchantments"
+						v-bind:stack="stack"
+						v-bind:scry_cache="scry_cache"
+						v-bind:key="stack.id"
+					></stack>
+			</div>
+			<div
+					class='drop-zone zone_div lands_div'
+					@drop='onDrop($event,  player_i, "lands", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<stack
+						v-for="stack in lands"
+						v-bind:stack="stack"
+						v-bind:key="stack.id"
+						v-bind:scry_cache="scry_cache"
+					></stack>
+			</div>
+			<div
+					class='drop-zone zone_div hand_div'
+					@drop='onDrop($event,  player_i, "hand", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<stack
+						v-for="stack in hand"
+						v-bind:stack="stack"
+						v-bind:key="stack.id"
+						v-bind:scry_cache="scry_cache"
+					></stack>
+			</div>
+			<div class="library_div zone_div">
+				<div class="drop-zone bordered"
+					@drop='onDrop($event,  player_i, "top", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					top
+				</div>
+				<div class="drop-zone bordered"
+					@drop='onDrop($event,  player_i, "bottom", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					bottom
+				</div>
+				Library
+				Count:{{ library.length }}
+				<button v-on:click="drawCard(player_i)">Draw Card</button>
+				<button v-on:click="viewLibrary()">View Library</button>
+				<button v-on:click="shuffleLibrary()">Shuffle Library</button>
+			</div>
+			<div class='drop-zone graveyard_div zone_div'
+				@drop='onDrop($event,  player_i, "graveyard", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				Graveyard
+				Count:{{ graveyard.length }}
+				<button v-on:click="viewGraveyard()">View Graveyard</button>
+			</div>
+			<div class='drop-zone exile_div zone_div'
+				@drop='onDrop($event,  player_i, "exile", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				Exile
+				Count:{{ exile.length }}
+				<button v-on:click="viewExile()">View Exile</button>
+			</div>
+			<div class='drop-zone sideboard_div zone_div'
+				@drop='onDrop($event,  player_i, "sideboard", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				Sideboard
+				Count:{{ sideboard.length }}
+				<button v-on:click="viewSideboard()">View Sideboard</button>
+			</div>
+			<div class='drop-zone command_div zone_div'
+				@drop='onDrop($event,  player_i, "command", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				Command
+				Count:{{ sideboard.length }}
+				<button v-on:click="viewSideboard()">View Command</button>
+			</div>
+			<div class='drop-zone trash_div zone_div'
+				@drop='onDrop($event,  player_i, "trash", null, "zone")'
+				@dragover.prevent
+				@dragenter.prevent>
+				Trash
+			</div>
+		</div>`,
+	methods: {
+		
 		onDrop: function(evt, player, zone, stackID, dropType){
 			this.$parent.onDrop(evt, player, zone, stackID, dropType);
 		},
-		onCardHover: function(evt, link_str){
-			this.$parent.onCardHover(evt, link_str);
+		viewLibrary: function(){
+			this.$parent.viewLibrary();
+		},
+		shuffleLibrary: function(){
+			this.$parent.shuffleLibrary();
+		},
+		viewGraveyard: function(){
+			this.$parent.viewGraveyard();
+		},
+		viewExile: function(){
+			this.$parent.viewExile();
+		},
+		viewSideboard: function(){
+			this.$parent.viewSideboard();
+		},
+		viewCommand: function(){
+			this.$parent.viewCommand();
+		},
+		drawCard: function(player_i){
+			this.$parent.drawCard(player_i);
 		},
 	},		
-			
+	computed: {
+		graveyard () {
+		  return this.stacks.filter(item => item.zone === "graveyard" && item.player === this.player_i)
+		},
+		exile () {
+		  return this.stacks.filter(item => item.zone === "exile" && item.player === this.player_i)
+		},
+		library () {
+		  return this.stacks.filter(item => item.zone === "library" && item.player === this.player_i)
+		},
+		command () {
+		  return this.stacks.filter(item => item.zone === "command" && item.player === this.player_i)
+		},
+		sideboard () {
+		  return this.stacks.filter(item => item.zone === "sideboard" && item.player === this.player_i)
+		},
+		hand () {
+		  return this.stacks.filter(item => item.zone === "hand" && item.player === this.player_i)
+		},
+		creatures () {
+		  return this.stacks.filter(item => item.zone === "creatures" && item.player === this.player_i)
+		},
+		enchantments () {
+		  return this.stacks.filter(item => item.zone === "enchantments" && item.player === this.player_i)
+		},
+		lands () {
+		  return this.stacks.filter(item => item.zone === "lands" && item.player === this.player_i)
+		},
+	},		
 });
 
 var app = new Vue({
@@ -91,15 +288,15 @@ var app = new Vue({
 			ComDam2: 0,
 			ComDam3: 0,
 			ComTax: 0,
-			starting_library:`4 Giant's Growth
-4 Paradise Druid
-4 The Great Henge
-4 Biogenic Ooze
-4 Voracious Hydra
-4 Barkhide Troll
-4 Nyxbloom Ancient
-4 Hydra's Growth
-24 Forest`,
+			starting_library:`3 Black Cat
+3 Carrion Feeder
+3 Cemetery Recruitment
+3 Death Denied
+3 Doom Blade
+3 Rancid Rats
+16 Swamp
+3 Tattered Mummy
+3 Vengeful Dead`,
 			starting_sideboard: "",
 			starting_command: "",
 			
@@ -111,9 +308,57 @@ var app = new Vue({
 			ComDam2: 0,
 			ComDam3: 0,
 			ComTax: 0,
-			starting_library: [],
-			starting_sideboard: [],
-			starting_command: [],
+			starting_library:`3 Fanatical Firebrand
+3 Foundry Street Denizen
+3 Goblin Instigator
+3 Hissing Iguanar
+3 Krenko's Command
+3 Lightning Bolt
+16 Mountain
+3 Reckless Abandon
+3 Sure Strike`,
+			starting_sideboard: "",
+			starting_command: "",
+			
+		},
+		{
+			health: 40,
+			poison: 0,
+			ComDam1: 0,
+			ComDam2: 0,
+			ComDam3: 0,
+			ComTax: 0,
+			starting_library:`3 Cancel
+3 Cartouche of Knowledge
+3 Containment Membrane
+3 Into the Roil
+16 Island
+3 Jeskai Windscout
+3 Jhessian Thief
+3 Man-o'-War
+3 Wall of Mist`,
+			starting_sideboard: "",
+			starting_command: "",
+			
+		},
+		{
+			health: 40,
+			poison: 0,
+			ComDam1: 0,
+			ComDam2: 0,
+			ComDam3: 0,
+			ComTax: 0,
+			starting_library:`3 Caustic Caterpillar
+3 Colossal Dreadmaw
+16 Forest
+3 Mammoth Spider
+3 Predator's Strike
+3 Prey Upon
+3 Sauroform Hybrid
+3 Skyshroud Troopers
+3 Wirewood Elf`,
+			starting_sideboard: "",
+			starting_command: "",
 			
 		},
 	],
@@ -204,9 +449,7 @@ var app = new Vue({
 		this.scryfall("Forest");
 	},
 	initSim: function(){
-		
-		//go through all inputs, init the scryfall links for each card name and attach the links by creating card instances and dumping them into the stacks with appropriate zone/player/id info
-		var stringToDeck = function(str, app){
+		var stringToDeck = function(str, app, zone, player){
 			var arr = str.split("\n");
 			for(var i = 0 ; i < arr.length; i ++){
 				var arr_t = arr[i].split(" ");
@@ -226,8 +469,8 @@ var app = new Vue({
 						notes: "",
 						id: generateID(),
 						isTapped: false,
-						zone: "library",
-						player: 0,
+						zone: zone,
+						player: player,
 						cards:[{
 							name: arr[i][1],
 							id: generateID(),
@@ -239,8 +482,22 @@ var app = new Vue({
 			
 			return arr2;
 		}
-		this.stacks = stringToDeck(this.players[0].starting_library, this);
+		this.stacks = [];
+		for(var i = 0; i < this.players.length; i++){
+			this.stacks = this.stacks.concat(stringToDeck(this.players[i].starting_library, this, "library", i));
+			this.stacks = this.stacks.concat(stringToDeck(this.players[i].starting_command, this, "command", i));
+			this.stacks = this.stacks.concat(stringToDeck(this.players[i].starting_sideboard, this, "sideboard", i));
+		}
+		this.shuffleLibrary();
+		this.popup = "hidden";
 		
+	},
+	dealAllHands: function(){
+		for(var i = 0; i < this.players.length; i++){
+			for(var j = 0; j < 7; j++){
+				this.drawCard(i);
+			}
+		}
 	},
 	tapStack: function(id){
 		for(var i = 0; i < this.stacks.length; i++){
@@ -332,7 +589,6 @@ var app = new Vue({
 	},
 	shuffleLibrary: function(){
 		
-		console.log(this.stacks);
 		var lib = [];
 		for(var i = 0; i < this.stacks.length; i++){
 			if(this.stacks[i].zone == "library"){
@@ -340,25 +596,22 @@ var app = new Vue({
 				i--;
 			}
 		}
-		for(var i = (lib.length - 1); i > 0; i--){
-			/*var j = Math.floor(Math.random() * i);
-			var temp = lib[i];
-			lib[i] = lib[j];
-			lib[j] = temp;*/
+		for(var num = 0; num <= 20; num++){
+			i = lib.length;
+			while (i--) {
+				const ri = Math.floor(Math.random() * (i + 1));
+				[lib[i], lib[ri]] = [lib[ri], lib[i]];
+			}
 		}
-		i = lib.length;
-		while (i--) {
-			const ri = Math.floor(Math.random() * (i + 1));
-			[lib[i], lib[ri]] = [lib[ri], lib[i]];
-		}
+		
+		
 		for(var i = 0; i < lib.length; i++){
 			this.stacks.push(lib[i]);
 		}
-		console.log(this.stacks);
 	},
-	drawCard: function(){
+	drawCard: function(player_i){
 		for(var i = 0; i < this.stacks.length; i++){
-			if(this.stacks[i].zone == "library"){
+			if(this.stacks[i].zone == "library" && this.stacks[i].player == player_i){
 				this.stacks[i].zone = "hand";
 				break;
 			}
@@ -412,8 +665,6 @@ var app = new Vue({
 					if(found){
 						break;
 					}
-					console.log("you should see this once");
-					console.log(item.id);
 					if(this.stacks[i].cards[j].id == item.id){
 						if(this.stacks[i].cards.length == 1){
 							item = this.stacks[i];
@@ -476,7 +727,6 @@ var app = new Vue({
 	  }
 	  if(dropType == "zone" && itemType == "stack"){
 		
-		console.log("here");
 		const item = this.stacks.find(item => item.id == itemID);
 		item.zone = zone;
 		item.player = player;
@@ -499,7 +749,6 @@ var app = new Vue({
 		}
 		
 	  }
-	  console.log(this);
 	},
 	scryfall: function(cardname){
 		if(cardname != "Forest" && this.scry_cache[cardname] != undefined){
@@ -527,7 +776,6 @@ var app = new Vue({
 				}
 				app.scry_cache[cardname] = arr;
 			}
-			
 		}
 
 
@@ -535,6 +783,52 @@ var app = new Vue({
 	},
   },
 	computed: {
+		nextIndex () {
+			i = this.player_i;
+			i++;
+			if(i < 4){
+				return i;
+			}else{
+				return 0;
+			}
+		},
+		nextNextIndex () {
+			i = this.player_i;
+			i++;
+			if(i < 4){
+				
+			}else{
+				i = 0;
+			}
+			i++;
+			if(i < 4){
+				return i;
+			}else{
+				return 0;
+			}
+		},
+		nextNextNextIndex () {
+			i = this.player_i;
+			i++;
+			if(i < 4){
+				
+			}else{
+				i = 0;
+			}
+			i++;
+			if(i < 4){
+				
+			}else{
+				i = 0;
+			}
+			i++;
+			if(i < 4){
+				return i;
+			}else{
+				return 0;
+			}
+		},
+		
 		graveyard () {
 		  return this.stacks.filter(item => item.zone === "graveyard" && item.player === this.player_i)
 		},
@@ -544,26 +838,11 @@ var app = new Vue({
 		library () {
 		  return this.stacks.filter(item => item.zone === "library" && item.player === this.player_i)
 		},
-		trash () {
-		  return this.stacks.filter(item => item.zone === "trash" && item.player === this.player_i)
-		},
 		command () {
 		  return this.stacks.filter(item => item.zone === "command" && item.player === this.player_i)
 		},
 		sideboard () {
 		  return this.stacks.filter(item => item.zone === "sideboard" && item.player === this.player_i)
-		},
-		hand () {
-		  return this.stacks.filter(item => item.zone === "hand" && item.player === this.player_i)
-		},
-		creatures () {
-		  return this.stacks.filter(item => item.zone === "creatures" && item.player === this.player_i)
-		},
-		enchantments () {
-		  return this.stacks.filter(item => item.zone === "enchantments" && item.player === this.player_i)
-		},
-		lands () {
-		  return this.stacks.filter(item => item.zone === "lands" && item.player === this.player_i)
 		},
 	},
 });

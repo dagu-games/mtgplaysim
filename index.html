@@ -3,122 +3,35 @@
 <head>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
 </head>
 <body>
 
 	<div id="app">
-		{{ message }}
-		<div 	id="creatures_div"
-				class='drop-zone zone_div'
-				@drop='onDrop($event,  player_i, "creatures", null, "zone")'
-				@dragover.prevent
-				@dragenter.prevent>
-				<stack
-					v-for="stack in creatures"
-					v-bind:stack="stack"
-					v-bind:scry_cache="scry_cache"
-					v-bind:key="stack.id"
-					v-bind:player_i="player_i"
-				></stack>
-		</div>
-		<div 	id="enchantments_div"
-				class='drop-zone zone_div'
-				@drop='onDrop($event,  player_i, "enchantments", null, "zone")'
-				@dragover.prevent
-				@dragenter.prevent>
-				<stack
-					v-for="stack in enchantments"
-					v-bind:stack="stack"
-					v-bind:scry_cache="scry_cache"
-					v-bind:key="stack.id"
-				></stack>
-		</div>
-		<div 	id="lands_div"
-				class='drop-zone zone_div'
-				@drop='onDrop($event,  player_i, "lands", null, "zone")'
-				@dragover.prevent
-				@dragenter.prevent>
-				<stack
-					v-for="stack in lands"
-					v-bind:stack="stack"
-					v-bind:key="stack.id"
-					v-bind:scry_cache="scry_cache"
-				></stack>
-		</div>
-		<div 	id="hand_div"
-				class='drop-zone zone_div'
-				@drop='onDrop($event,  player_i, "hand", null, "zone")'
-				@dragover.prevent
-				@dragenter.prevent>
-				<stack
-					v-for="stack in hand"
-					v-bind:stack="stack"
-					v-bind:key="stack.id"
-					v-bind:scry_cache="scry_cache"
-				></stack>
-		</div>
-		<div id="library_div">
-			<div class="drop-zone bordered"
-				@drop='onDrop($event,  player_i, "top", null, "zone")'
-				@dragover.prevent
-				@dragenter.prevent>
-				top
-			</div>
-			<div class="drop-zone bordered"
-				@drop='onDrop($event,  player_i, "bottom", null, "zone")'
-				@dragover.prevent
-				@dragenter.prevent>
-				bottom
-			</div>
-			Library
-			Count:{{ library.length }}
-			<button v-on:click="drawCard()">Draw Card</button>
-			<button v-on:click="viewLibrary()">View Library</button>
-			<button v-on:click="shuffleLibrary()">Shuffle Library</button>
-		</div>
-		<div class='drop-zone'
-			id="graveyard_div"
-			@drop='onDrop($event,  player_i, "graveyard", null, "zone")'
-			@dragover.prevent
-			@dragenter.prevent>
-			Graveyard
-			Count:{{ graveyard.length }}
-			<button v-on:click="viewGraveyard()">View Graveyard</button>
-		</div>
-		<div class='drop-zone'
-			id="exile_div"
-			@drop='onDrop($event,  player_i, "exile", null, "zone")'
-			@dragover.prevent
-			@dragenter.prevent>
-			Exile
-			Count:{{ exile.length }}
-			<button v-on:click="viewExile()">View Exile</button>
-		</div>
-		<div class='drop-zone'
-			id="sideboard_div"
-			@drop='onDrop($event,  player_i, "sideboard", null, "zone")'
-			@dragover.prevent
-			@dragenter.prevent>
-			Sideboard
-			Count:{{ sideboard.length }}
-			<button v-on:click="viewSideboard()">View Sideboard</button>
-		</div>
-		<div class='drop-zone'
-			id="command_div"
-			@drop='onDrop($event,  player_i, "command", null, "zone")'
-			@dragover.prevent
-			@dragenter.prevent>
-			Command
-			Count:{{ sideboard.length }}
-			<button v-on:click="viewSideboard()">View Command</button>
-		</div>
-		<div class='drop-zone'
-			id="trash_div"
-			@drop='onDrop($event,  player_i, "trash", null, "zone")'
-			@dragover.prevent
-			@dragenter.prevent>
-			Trash
-		</div>
+		<div class="playerpanel_div playerpanel_div_main"><playerpanel
+			v-bind:players="players"
+			v-bind:scry_cache="scry_cache"
+			v-bind:stacks="stacks"
+			v-bind:player_i="player_i"
+		></playerpanel></div>
+		<div class="playerpanel_div playerpanel_div_opp1"><playerpanel
+			v-bind:players="players"
+			v-bind:scry_cache="scry_cache"
+			v-bind:stacks="stacks"
+			v-bind:player_i="nextIndex"
+		></playerpanel></div>
+		<div class="playerpanel_div playerpanel_div_opp2"><playerpanel
+			v-bind:players="players"
+			v-bind:scry_cache="scry_cache"
+			v-bind:stacks="stacks"
+			v-bind:player_i="nextNextIndex"
+		></playerpanel></div>
+		<div class="playerpanel_div playerpanel_div_opp3"><playerpanel
+			v-bind:players="players"
+			v-bind:scry_cache="scry_cache"
+			v-bind:stacks="stacks"
+			v-bind:player_i="nextNextNextIndex"
+		></playerpanel></div>
 		<div id="info_div">
 			<img class="zoom_img" v-bind:src="zoom_link"/>
 			Player: 
@@ -150,18 +63,44 @@
 			Commander Tax: {{ players[player_i].ComTax }}
 			<button v-on:click="increaseComTax()">+</button>
 			<button v-on:click="resetAll()">Reset All</button>
+			<button v-on:click="dealAllHands()">Deal All Hands</button>
 		</div>
 		<div id="popup_div" v-bind:class='{ hidden: popup == "hidden"}'>
 			<button v-on:click="closePopup()">Close</button>
+			<button v-on:click="initSim()">Start</button>
 			<div v-if='popup == "init"'>
+				<h3>Player 1</h3>
 				Deck:
 				<textarea style="width:200px;height:200px;" v-model="players[0].starting_library"></textarea>
-				<br>
 				Sideboard:
-				<input v-model="players[0].starting_sideboard"/>
+				<textarea style="width:200px;height:200px;" v-model="players[0].starting_sideboard"></textarea>
 				Command zone:
-				<input v-model="players[0].starting_command"/>
-				<button v-on:click="initSim()">Start</button>
+				<textarea style="width:200px;height:200px;" v-model="players[0].starting_command"></textarea>
+				<br>
+				<h3>Player 2</h3>
+				Deck:
+				<textarea style="width:200px;height:200px;" v-model="players[1].starting_library"></textarea>
+				Sideboard:
+				<textarea style="width:200px;height:200px;" v-model="players[1].starting_sideboard"></textarea>
+				Command zone:
+				<textarea style="width:200px;height:200px;" v-model="players[1].starting_command"></textarea>
+				<br>
+				<h3>Player 3</h3>
+				Deck:
+				<textarea style="width:200px;height:200px;" v-model="players[2].starting_library"></textarea>
+				Sideboard:
+				<textarea style="width:200px;height:200px;" v-model="players[2].starting_sideboard"></textarea>
+				Command zone:
+				<textarea style="width:200px;height:200px;" v-model="players[2].starting_command"></textarea>
+				<br>
+				<h3>Player 4</h3>
+				Deck:
+				<textarea style="width:200px;height:200px;" v-model="players[3].starting_library"></textarea>
+				Sideboard:
+				<textarea style="width:200px;height:200px;" v-model="players[3].starting_sideboard"></textarea>
+				Command zone:
+				<textarea style="width:200px;height:200px;" v-model="players[3].starting_command"></textarea>
+				<br>
 			</div>
 			<div v-if='popup == "library"'>
 				Library

@@ -1,4 +1,0 @@
-things to do
-1. get scryfall api up and running
-2. implement init function and deck import, library functionality and popup window.
-3. tree out all the elements into components from the main instance. panels contain zones which contain stacks

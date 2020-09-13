@@ -1,42 +1,41 @@
-#creatures_div {
-	width: 79%;
+.creatures_div {
+	width: 100%;
 	height: 26%;
-	position: absolute;
 	left: 0;
 	top: 0;
+	position: absolute;
 	border: 1px solid black;
 }
 
-#enchantments_div {
-	width: 79%;
+.enchantments_div {
+	width: 100%;
 	height: 26%;
-	position: absolute;
 	left: 0;
 	top: 26%;
+	position: absolute;
 	border: 1px solid black;
 }
 
-#lands_div {
-	width: 79%;
+.lands_div {
+	width: 100%;
 	height: 26%;
-	position: absolute;
 	left: 0;
 	top: 52%;
+	position: absolute;
 	border: 1px solid black;
 }
 
-#hand_div {
+.hand_div {
 	width: 60%;
 	height: 20%;
-	position: absolute;
-	left: 0;
 	bottom: 0;
+	position: absolute;
 	border: 1px solid black;
 }
 
 #info_div {
-	width: 20%;
-	height: 79%;
+	width: 15%;
+	height: 100%;
 	position: absolute;
 	right: 0;
 	top: 0;
@@ -77,6 +76,11 @@ input {
 	border: 1px solid black;
 }
 
+.zoom_img {
+	width: 100%;
+	height: auto;
+}
+
 #popup_div {
 	width: 90%;
 	height: 90%;
@@ -85,62 +89,120 @@ input {
 	top: 5%;
 	border: 1px solid black;
 	background-color: #fff;
+	overflow-y: scroll;
 }
 
-#library_div {
+.library_div {
 	width: 10%;
 	height: 20%;
 	position: absolute;
+	border: 1px solid black;
+	bottom: 0;
 	left: 60%;
 	bottom: 0;
-	border: 1px solid black;
 }
 
-#graveyard_div {
+.graveyard_div {
 	width: 6%;
 	height: 20%;
 	position: absolute;
+	border: 1px solid black;
 	left: 70%;
 	bottom: 0;
-	border: 1px solid black;
 }
 
-#exile_div {
+.exile_div {
 	width: 6%;
 	height: 20%;
 	position: absolute;
+	border: 1px solid black;
 	left: 76%;
 	bottom: 0;
-	border: 1px solid black;
 }
 
-#sideboard_div {
+.sideboard_div {
 	width: 6%;
 	height: 20%;
 	position: absolute;
+	border: 1px solid black;
 	left: 82%;
 	bottom: 0;
-	border: 1px solid black;
 }
 
-#command_div {
+.command_div {
 	width: 6%;
 	height: 20%;
 	position: absolute;
+	border: 1px solid black;
 	left: 88%;
 	bottom: 0;
-	border: 1px solid black;
 }
 
-#trash_div {
+.trash_div {
 	width: 6%;
 	height: 20%;
 	position: absolute;
-	right: 0%;
 	bottom: 0;
+	right: 0;
 	border: 1px solid black;
 }
 
 .hidden {
 	display:none;
+}
+
+#app {
+	width: 99.7vw;
+	height: 99.7vh;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.playerpanel_div {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.playerpanel_div_main {
+	width: 84%;
+	height: 80%;
+	position: absolute;
+	left: 0;
+	top: 20%;
+}
+
+.playerpanel_div_opp1 {
+	width: 28%;
+	height: 20%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	font-size: 25%;
+}
+
+.playerpanel < < < button {
+	
+	font-size: 25%;
+}
+
+.playerpanel_div_opp2 {
+	width: 28%;
+	height: 20%;
+	position: absolute;
+	top: 0;
+	left: 28%;
+	font-size: 25%;
+}
+
+.playerpanel_div_opp3 {
+	width: 28%;
+	height: 20%;
+	position: absolute;
+	top: 0;
+	left: 56%;
+	font-size: 25%;
 }
