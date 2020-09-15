@@ -25,6 +25,42 @@
 	border: 1px solid black;
 }
 
+.opponent_info_span {
+	width: 100%;
+	height: 10%;
+	left: 0;
+	top: 0;
+	position: absolute;
+	border: 1px solid black;
+}
+
+.opponent_creatures_div {
+	width: 100%;
+	height: 30%;
+	left: 0;
+	top: 10%;
+	position: absolute;
+	border: 1px solid black;
+}
+
+.opponent_enchantments_div {
+	width: 100%;
+	height: 30%;
+	left: 0;
+	top: 40%;
+	position: absolute;
+	border: 1px solid black;
+}
+
+.opponent_lands_div {
+	width: 100%;
+	height: 30%;
+	left: 0;
+	top: 70%;
+	position: absolute;
+	border: 1px solid black;
+}
+
 .hand_div {
 	width: 60%;
 	height: 20%;
@@ -175,34 +211,27 @@ input {
 	top: 20%;
 }
 
-.playerpanel_div_opp1 {
+.opponentpanel_div_opp1 {
 	width: 28%;
 	height: 20%;
 	position: absolute;
 	top: 0;
 	left: 0;
-	font-size: 25%;
 }
 
-.playerpanel < < < button {
-	
-	font-size: 25%;
-}
 
-.playerpanel_div_opp2 {
+.opponentpanel_div_opp2 {
 	width: 28%;
 	height: 20%;
 	position: absolute;
 	top: 0;
 	left: 28%;
-	font-size: 25%;
 }
 
-.playerpanel_div_opp3 {
+.opponentpanel_div_opp3 {
 	width: 28%;
 	height: 20%;
 	position: absolute;
 	top: 0;
 	left: 56%;
-	font-size: 25%;
 }

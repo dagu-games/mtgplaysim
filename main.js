@@ -100,6 +100,74 @@ Vue.component('stack', {
 			
 });
 
+Vue.component('opponentstack', {
+	props: ['stack'],
+	template: `
+			<div class="stack_div" style="border: black 1px solid;">
+				<div class="drag-el stack_drag_area"
+					style="border: black 1px solid;"
+					draggable
+					@dragstart='startDrag($event, stack, "stack")'>
+					Drag
+				</div>
+				<div v-for="card in stack.cards">
+					<img
+						v-bind:class='{ tapped: stack.isTapped, "drag-el": true }'
+						v-bind:src='getLink(card.name,card.link_i)'
+						@mouseover='onCardHover($event, getLink(card.name,card.link_i))'
+						draggable
+						@dragstart='startDrag($event, card, "card")'
+						/>
+				</div>
+			</div>
+			`,
+	methods: {
+		flipCard: function(id){
+			if(this.$parent.$parent == undefined){
+				this.$parent.flipCard(id);
+			}else{
+				this.$parent.$parent.flipCard(id);
+			}
+		},
+		tapStack: function(id){
+			if(this.$parent.$parent == undefined){
+				this.$parent.tapStack(id);
+			}else{
+				this.$parent.$parent.tapStack(id);
+			}
+		},
+		startDrag: function(evt, item, type){
+			if(this.$parent.$parent == undefined){
+				this.$parent.startDrag(evt, item, type);
+			}else{
+				this.$parent.$parent.startDrag(evt, item, type);
+			}
+		},
+		onDrop: function(evt, player, zone, stackID, dropType){
+			if(this.$parent.$parent == undefined){
+				this.$parent.onDrop(evt, player, zone, stackID, dropType);
+			}else{
+				this.$parent.$parent.onDrop(evt, player, zone, stackID, dropType);
+			}
+		},
+		onCardHover: function(evt, link_str){
+			if(this.$parent.$parent == undefined){
+				this.$parent.onCardHover(evt, link_str);
+			}else{
+				this.$parent.$parent.onCardHover(evt, link_str);
+			}
+		},
+		getLink: function(cardname, i){
+			if(this.$parent.$parent == undefined){
+				return this.$parent.scry_cache[cardname][i];
+			}else{
+				return this.$parent.$parent.scry_cache[cardname][i];
+			}
+		},
+	},	
+			
+});
+
 
 Vue.component('playerpanel', {
 	props: ['players','scry_cache','stacks','player_i'],
@@ -210,6 +278,114 @@ Vue.component('playerpanel', {
 				@dragover.prevent
 				@dragenter.prevent>
 				Trash
+			</div>
+		</div>`,
+	methods: {
+		
+		onDrop: function(evt, player, zone, stackID, dropType){
+			this.$parent.onDrop(evt, player, zone, stackID, dropType);
+		},
+		viewLibrary: function(){
+			this.$parent.viewLibrary();
+		},
+		shuffleLibrary: function(){
+			this.$parent.shuffleLibrary();
+		},
+		viewGraveyard: function(){
+			this.$parent.viewGraveyard();
+		},
+		viewExile: function(){
+			this.$parent.viewExile();
+		},
+		viewSideboard: function(){
+			this.$parent.viewSideboard();
+		},
+		viewCommand: function(){
+			this.$parent.viewCommand();
+		},
+		drawCard: function(player_i){
+			this.$parent.drawCard(player_i);
+		},
+	},		
+	computed: {
+		graveyard () {
+		  return this.stacks.filter(item => item.zone === "graveyard" && item.player === this.player_i)
+		},
+		exile () {
+		  return this.stacks.filter(item => item.zone === "exile" && item.player === this.player_i)
+		},
+		library () {
+		  return this.stacks.filter(item => item.zone === "library" && item.player === this.player_i)
+		},
+		command () {
+		  return this.stacks.filter(item => item.zone === "command" && item.player === this.player_i)
+		},
+		sideboard () {
+		  return this.stacks.filter(item => item.zone === "sideboard" && item.player === this.player_i)
+		},
+		hand () {
+		  return this.stacks.filter(item => item.zone === "hand" && item.player === this.player_i)
+		},
+		creatures () {
+		  return this.stacks.filter(item => item.zone === "creatures" && item.player === this.player_i)
+		},
+		enchantments () {
+		  return this.stacks.filter(item => item.zone === "enchantments" && item.player === this.player_i)
+		},
+		lands () {
+		  return this.stacks.filter(item => item.zone === "lands" && item.player === this.player_i)
+		},
+	},		
+});
+
+Vue.component('opponentpanel', {
+	props: ['players','scry_cache','stacks','player_i'],
+	template: `
+		<div class="opponentpanel_div">
+			<span class="opponent_info_span">{{ 
+				"Player:" + (player_i + 1) + 
+				"  |  Library:" + library.length +
+				"  |  Hand:" + hand.length +
+				"  |  Graveyard:" + graveyard.length +
+				"  |  Exile:" + exile.length
+				
+			}}</span>
+			<div 
+					class='drop-zone zone_div opponent_creatures_div'
+					@drop='onDrop($event,  player_i, "creatures", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<opponentstack
+						v-for="stack in creatures"
+						v-bind:stack="stack"
+						v-bind:scry_cache="scry_cache"
+						v-bind:key="stack.id"
+						v-bind:player_i="player_i"
+					></opponentstack>
+			</div>
+			<div
+					class='drop-zone zone_div opponent_enchantments_div'
+					@drop='onDrop($event,  player_i, "enchantments", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<opponentstack
+						v-for="stack in enchantments"
+						v-bind:stack="stack"
+						v-bind:scry_cache="scry_cache"
+						v-bind:key="stack.id"
+					></opponentstack>
+			</div>
+			<div
+					class='drop-zone zone_div opponent_lands_div'
+					@drop='onDrop($event,  player_i, "lands", null, "zone")'
+					@dragover.prevent
+					@dragenter.prevent>
+					<opponentstack
+						v-for="stack in lands"
+						v-bind:stack="stack"
+						v-bind:key="stack.id"
+						v-bind:scry_cache="scry_cache"
+					></opponentstack>
 			</div>
 		</div>`,
 	methods: {
@@ -531,6 +707,7 @@ var app = new Vue({
 				if(this.stacks[i].cards[j].id == id){
 					if(this.scry_cache[this.stacks[i].cards[j].name].length <= this.stacks[i].cards[j].link_i + 1){
 						this.stacks[i].cards[j].link_i = 0;
+						console.log(this.scry_cache);
 					}else{
 						this.stacks[i].cards[j].link_i += 1;
 					}
@@ -768,12 +945,13 @@ var app = new Vue({
 		function callback(responseText, cardname, app){
 			var json_obj = JSON.parse(responseText);
 			if(json_obj.card_faces == null){
-				app.scry_cache[cardname] = [json_obj.image_uris.png];
+				app.scry_cache[cardname] = [json_obj.image_uris.png,'https://i.redd.it/qnnotlcehu731.jpg'];
 			}else{
 				var arr = [];
 				for(var i = 0; i < json_obj.card_faces.length; i++){
 					arr.push(json_obj.card_faces[i].image_uris.png);
 				}
+				arr.push('https://i.redd.it/qnnotlcehu731.jpg');
 				app.scry_cache[cardname] = arr;
 			}
 		}
